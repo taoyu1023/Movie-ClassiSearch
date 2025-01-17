@@ -1,184 +1,184 @@
-# 1. 数据获取
+# 1. Data Acquisition
 
-## 1.1 使用 TMDB API
+## 1.1 Using TMDB API
 
-目标：从 TMDB 上获取电影的标题、简介、类别等必要信息。
+Objective: Retrieve essential information such as titles, overviews, and genres of movies from TMDB.
 
-工具/接口：TMDB API（The Movie Database 提供）。
+Tools/API: TMDB API (provided by The Movie Database).
 
-关键点：
+Key Points:
 
-API 申请和配额：需在 TMDB 官网申请 API Key，了解免费账户的配额限制。
+API Application and Quotas: Apply for an API Key from the TMDB website and understand the limits for free accounts.
 
-抓取范围：
+Scope of Data Retrieval:
 
-根据关键词搜索电影；
+Search for movies by keywords;
 
-按类别（如动作、喜剧、科幻等）获取电影列表；
+Get movie lists by genre (e.g., action, comedy, sci-fi);
 
-按时间范围（如发行年份）筛选；
+Filter by time range (e.g., release year);
 
-获取电影的详细信息，包括标题、简介、类别、评分等。
+Retrieve detailed movie information, including title, overview, genres, rating, etc.
 
-数据字段：
+Data Fields:
 
-必要字段：title（标题）、overview（简介）、genres（类别）。
+Essential fields: title (title), overview (overview), genres (genres).
 
-可选字段：id（电影 ID）、release_date（发行日期）、vote_average（评分）、popularity（流行度）。
+Optional fields: id (movie ID), release_date (release date), vote_average (rating), popularity (popularity).
 
-可选方案：如果只需要小规模数据，可以使用 TMDB 提供的样本数据集或手动整理部分数据。
+Optional Solution: For small-scale data, use sample datasets provided by TMDB or manually curate a portion of the data.
 
-注意事项：
+Notes:
 
-遵守 TMDB API 的使用政策，避免滥用接口导致 API Key 被禁用。
+Adhere to TMDB API usage policies to avoid API Key suspension.
 
-# 2. 数据预处理与索引构建
+# 2. Data Preprocessing and Index Construction
 
-## 2.1 数据清洗与预处理
+## 2.1 Data Cleaning and Preprocessing
 
-去除噪音字符：如 HTML 标签、特殊符号等。
+Remove Noise: Strip HTML tags, special symbols, etc.
 
-分词：对简介等文本字段进行分词处理，英文可使用 NLTK 或 spaCy，其他语言可使用相应的工具。
+Tokenization: Tokenize text fields like overviews; for English, use tools like NLTK or spaCy; for other languages, use relevant tools.
 
-大小写处理：统一转小写或保持原始大小写，根据具体需求决定。
+Case Normalization: Convert text to lowercase or retain the original case, depending on the requirement.
 
-停用词移除：去除常见无意义的词（例如英文中的 "the", "a" 等）。
+Stopword Removal: Remove common meaningless words (e.g., "the," "a," etc.).
 
-Stemming / Lemmatization：对于英文简介，可做词干提取或词形还原，以减少特征维度。
+Stemming / Lemmatization: For English overviews, perform stemming or lemmatization to reduce feature dimensions.
 
-## 2.2 索引构建
+## 2.2 Index Construction
 
-自建索引：
+Custom Index:
 
-倒排索引 (Inverted Index)：将关键词与相关电影 ID 建立映射。
+Inverted Index: Map keywords to relevant movie IDs.
 
-数据结构：term -> [list_of_movie_ids]。
+Data Structure: term -> [list_of_movie_ids].
 
-存储方式：可以用 Python + SQLite 或 JSON 文件简单实现，或使用更专业的工具如 Lucene。
+Storage: Implement with Python + SQLite or JSON files, or use professional tools like Lucene.
 
-搜索引擎系统：
+Search Engine System:
 
-使用 Elasticsearch 或 Apache Solr 等成熟方案，支持多种检索算法和排序功能。
+Use mature solutions like Elasticsearch or Apache Solr, which support various search algorithms and ranking features.
 
-# 3. 检索与排序
+# 3. Search and Ranking
 
-## 3.1 检索方法
+## 3.1 Search Methods
 
-布尔检索：支持 AND / OR / NOT 操作。
+Boolean Search: Support AND / OR / NOT operations.
 
-向量空间模型：计算 TF-IDF 或 BM25 得分，用于衡量电影简介与查询的相似度。
+Vector Space Model: Compute TF-IDF or BM25 scores to measure the similarity between movie overviews and queries.
 
-Embedding 检索：
+Embedding-Based Search:
 
-使用句向量模型（如 Sentence Transformers 或 BERT）进行语义检索。
+Use sentence embedding models (e.g., Sentence Transformers or BERT) for semantic search.
 
-适用于实现更高质量的语义匹配。
+Suitable for achieving high-quality semantic matching.
 
-## 3.2 排序方法
+## 3.2 Ranking Methods
 
-传统信息检索打分：基于 TF-IDF 或 BM25 排序。
+Traditional Information Retrieval Scoring: Rank results based on TF-IDF or BM25 scores.
 
-融合其他特征：
+Fusion of Additional Features:
 
-电影评分（vote_average）；
+Movie rating (vote_average);
 
-流行度（popularity）；
+Popularity (popularity);
 
-发行时间（较新的电影适当加权）。
+Release date (newer movies receive higher weight).
 
-学习排序 (Learning to Rank)：
+Learning to Rank:
 
-如果有标注数据，可用机器学习模型融合多种排序特征。
+Use machine learning models to combine multiple ranking features if annotated data is available.
 
-# 4. 查询分类模型
+# 4. Query Classification Model
 
-目标：根据用户的查询语句分类，决定对应的电影类别或主题，提升检索效率。
+Objective: Classify user queries by theme or genre to enhance search efficiency.
 
-## 4.1 准备训练数据
+## 4.1 Preparing Training Data
 
-人工标注：将查询语句分为若干类别（如 "动作", "喜剧", "科幻" 等）。
+Manual Labeling: Categorize queries into genres (e.g., "action," "comedy," "sci-fi").
 
-自动标注：使用电影本身的类别或标签（genres）自动推断查询类别。
+Automatic Labeling: Infer query categories using movie genres or tags and clean the data accordingly.
 
-## 4.2 模型训练
+## 4.2 Model Training
 
-传统机器学习方法：
+Traditional Machine Learning Methods:
 
-使用 TF-IDF 或词袋模型将查询转化为向量。
+Convert queries to vectors using TF-IDF or Bag of Words.
 
-采用分类算法，如 Logistic Regression、SVM。
+Use classification algorithms like Logistic Regression or SVM.
 
-深度学习方法：
+Deep Learning Methods:
 
-基于预训练模型（如 BERT）微调，用于短文本分类，通常效果更优。
+Fine-tune pre-trained models (e.g., BERT) for short text classification, usually achieving better accuracy.
 
-## 4.3 应用场景
+## 4.3 Application Scenarios
 
-流程：
+Workflow:
 
-用户输入查询语句。
+User inputs a query.
 
-分类模型预测查询的电影类别（如 "动作"）。
+The classification model predicts the genre (e.g., "action").
 
-根据类别选择对应的索引进行检索。
+Search the corresponding index based on the genre.
 
-返回排序后的结果。
+Return sorted results.
 
-Fallback 机制：当分类不确定时，可默认检索所有类别的索引并合并结果。
+Fallback Mechanism: When classification is uncertain, search all indices and merge results.
 
-# 5. 前端页面与系统集成
+# 5. Front-End Interface and System Integration
 
-## 5.1 前端页面
+## 5.1 Front-End Interface
 
-实现工具：React、Vue、Angular 或 HTML/JS。
+Implementation Tools: React, Vue, Angular, or plain HTML/JS.
 
-功能：
+Features:
 
-输入搜索关键词或查询语句。
+Input search keywords or queries.
 
-显示搜索结果列表：
+Display search result lists:
 
-标题、简介（支持截断显示）；
+Title, overview (with truncation if needed);
 
-类别、评分、发行日期；
+Genre, rating, release date;
 
-跳转链接（如指向电影详情页面）。
+Links to movie detail pages.
 
-支持关键词高亮显示。
+Support keyword highlighting.
 
-## 5.2 后端接口
+## 5.2 Back-End API
 
-框架：Flask / Django / FastAPI（Python），Spring Boot（Java），Node.js 等。
+Framework: Flask / Django / FastAPI (Python), Spring Boot (Java), Node.js, etc.
 
-流程：
+Workflow:
 
-前端将查询语句发送至后端。
+The front-end sends the query to the back-end.
 
-后端调用分类模型 -> 确定查询类别。
+The back-end invokes the classification model to determine the query genre.
 
-后端根据类别到对应索引或数据库检索结果。
+The back-end searches the corresponding index or database for results.
 
-对结果进行排序并返回 JSON。
+Results are sorted and returned as JSON.
 
-前端接收数据并渲染。
+The front-end renders the results.
 
-## 5.3 性能与部署
+## 5.3 Performance and Deployment
 
-性能优化：
+Performance Optimization:
 
-使用缓存减少重复查询；
+Use caching to reduce redundant queries.
 
-配置负载均衡以支持高并发。
+Configure load balancing to support high concurrency.
 
-实时更新：
+Real-Time Updates:
 
-如果需要实时或准实时更新，可使用 Elasticsearch 并开启索引刷新配置。
+For real-time or near-real-time updates, enable index refresh in Elasticsearch.
 
-前后端分离：有利于系统的扩展性和维护。
+Front-End and Back-End Separation: Facilitates scalability and maintenance.
 
-# 总结
+# Summary
 
-构建基于 TMDB 的电影分类搜索项目的核心流程是：
+The core workflow of building a movie classification and search project based on TMDB includes:
 
-数据获取 -> 2. 数据预处理与索引构建 -> 3. 实现检索与排序 -> 4. 查询分类模型 -> 5. 前端页面与后端集成。
+Data Acquisition -> 2. Data Preprocessing and Index Construction -> 3. Search and Ranking -> 4. Query Classification Model -> 5. Front-End Input and Result Display.
 
